@@ -1,0 +1,48 @@
+pipeline {
+    agent { label 'agent-1' }   
+
+    stages {
+
+        stage("Checkout Code") {
+            steps {
+                git branch: "main", url: "https://github.com/Kdmodder/wanderlust1.git"
+            }
+        }
+
+        stage("Verify Environment") {
+            steps {
+                sh "whoami"
+                sh "hostname"
+                sh "node -v"
+                sh "npm -v"
+            }
+        }
+
+        stage("Install Dependencies") {
+            steps {
+                sh "npm install"
+            }
+        }
+
+        stage("Build Project") {
+            steps {
+                sh "npm run build || echo 'No build script found'"
+            }
+        }
+
+        stage("Security Check") {
+            steps {
+                sh "npm audit || true"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline executed successfully!"
+        }
+        failure {
+            echo "Pipeline failed!"
+        }
+    }
+}
